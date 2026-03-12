@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Demo 小抄 · 品顺合作洽谈</title>
+<style>
+  :root {
+    --gold: #c8892e;
+    --blue: #3872b8;
+    --green: #2a8a68;
+    --purple: #7c5cba;
+    --red: #d94452;
+    --bg: #faf9f6;
+    --card: #fff;
+    --border: #e8e4dd;
+    --text: #2d2a26;
+    --dim: #8a857d;
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'Noto Sans SC', 'PingFang SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 16px;
+    padding-bottom: 80px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* === HEADER === */
+  .hero {
+    text-align: center;
+    padding: 20px 12px 16px;
+    border-bottom: 2px solid var(--gold);
+    margin-bottom: 16px;
+  }
+  .hero h1 { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+  .hero .sub { font-size: 0.78rem; color: var(--dim); margin-top: 4px; }
+  .hero .date { font-size: 0.72rem; color: var(--dim); margin-top: 2px; }
+
+  /* === NAV === */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    padding: 8px 0 6px;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .nav-btn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--dim);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-btn.active { color: #fff; border-color: var(--gold); background: var(--gold); }
+  .nav-btn[data-s="s2"].active { border-color: var(--blue); background: var(--blue); }
+  .nav-btn[data-s="odm"].active { border-color: var(--purple); background: var(--purple); }
+  .nav-btn[data-s="compare"].active { border-color: var(--green); background: var(--green); }
+  .nav-btn[data-s="tips"].active { border-color: var(--red); background: var(--red); }
+
+  /* === SECTIONS === */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* === CARDS === */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card p, .card li {
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #444;
+  }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 4px; }
+
+  /* === HIGHLIGHT === */
+  .hl { background: rgba(200,137,46,0.1); padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+  .hl-blue { background: rgba(56,114,184,0.1); color: var(--blue); padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+  .hl-green { background: rgba(42,138,104,0.1); color: var(--green); padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+  .hl-purple { background: rgba(124,92,186,0.1); color: var(--purple); padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+  .hl-red { background: rgba(217,68,82,0.1); color: var(--red); padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+
+  /* === FLOW === */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    background: #f8f6f2;
+    border-radius: 8px;
+    margin: 8px 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .flow .arr { color: var(--dim); font-size: 0.9rem; }
+
+  /* === TABLE === */
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    margin: 8px 0;
+  }
+  .tbl th, .tbl td {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  .tbl th {
+    background: #f5f3ef;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--dim);
+  }
+  .tbl td { line-height: 1.6; }
+
+  /* === ROLE MAP === */
+  .role-map {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .role-box {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid;
+    font-size: 0.78rem;
+  }
+  .role-box .label { font-size: 0.7rem; color: var(--dim); margin-bottom: 2px; }
+  .role-box .name { font-weight: 700; font-size: 0.85rem; }
+  .role-box .orig { font-size: 0.72rem; color: var(--dim); margin-top: 2px; }
+  .rb-gold { border-color: var(--gold); background: rgba(200,137,46,0.04); }
+  .rb-blue { border-color: var(--blue); background: rgba(56,114,184,0.04); }
+  .rb-green { border-color: var(--green); background: rgba(42,138,104,0.04); }
+  .rb-purple { border-color: var(--purple); background: rgba(124,92,186,0.04); }
+
+  /* === CALLOUT === */
+  .callout {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    margin: 8px 0;
+  }
+  .callout-gold { background: rgba(200,137,46,0.08); border-left: 3px solid var(--gold); }
+  .callout-blue { background: rgba(56,114,184,0.08); border-left: 3px solid var(--blue); }
+  .callout-green { background: rgba(42,138,104,0.08); border-left: 3px solid var(--green); }
+  .callout-red { background: rgba(217,68,82,0.08); border-left: 3px solid var(--red); }
+  .callout-purple { background: rgba(124,92,186,0.08); border-left: 3px solid var(--purple); }
+
+  /* === BADGE === */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .badge-gold { background: var(--gold); }
+  .badge-blue { background: var(--blue); }
+
+  /* === DIVIDER === */
+  .divider { border:none; border-top: 1px dashed var(--border); margin: 14px 0; }
+
+  /* === OPTION BOX === */
+  .opt-box {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 6px 0;
+    font-size: 0.8rem;
+  }
+  .opt-box .opt-title { font-weight: 700; font-size: 0.78rem; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Demo 小抄 · 品顺合作洽谈</h1>
+  <div class="sub">水牛奶产业协作 · 交易架构方案</div>
+  <div class="date">2026年3月14日 · 品顺国资对接会</div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" data-s="s1" onclick="show('s1')">方案一</button>
+  <button class="nav-btn" data-s="s2" onclick="show('s2')">方案二</button>
+  <button class="nav-btn" data-s="odm" onclick="show('odm')">腊味ODM类比</button>
+  <button class="nav-btn" data-s="compare" onclick="show('compare')">方案对比</button>
+  <button class="nav-btn" data-s="tips" onclick="show('tips')">演讲提示</button>
+</div>
+
+<!-- ==================== 方案一 ==================== -->
+<div class="section active" id="s1">
+
+  <div class="card">
+    <h3><span class="badge badge-gold">01</span> 总包 + 甲供料模式</h3>
+    <p><strong>一句话概括：</strong>顺好食向品顺下总包订单，品顺名义总包后分包给西江乳业加工，合同约定必须使用大水牛的原料奶。IP授权费和技术研发费<span class="hl">隐形包含在成品采购单价中</span>，不单独支付。</p>
+  </div>
+
+  <div class="card">
+    <h3>🏗️ 四方主体角色</h3>
+    <div class="role-map">
+      <div class="role-box rb-gold">
+        <div class="label">甲方 · 发起方</div>
+        <div class="name">🎯 顺好食</div>
+        <div class="orig">下单、验收、销售</div>
+      </div>
+      <div class="role-box rb-blue">
+        <div class="label">乙方 · 名义总包 / IP方</div>
+        <div class="name">🏛️ 品顺（国资）</div>
+        <div class="orig">确认全额营收，截留IP溢价</div>
+      </div>
+      <div class="role-box rb-green">
+        <div class="label">丙方 · 分包工厂</div>
+        <div class="name">🏭 西江乳业</div>
+        <div class="orig">实际生产加工</div>
+      </div>
+      <div class="role-box rb-purple">
+        <div class="label">原料方</div>
+        <div class="name">🐃 大水牛供应链</div>
+        <div class="orig">甲方管理基金旗下子公司</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 合同层（3份合同）</h3>
+    <table class="tbl">
+      <tr><th>编号</th><th>合同名称</th><th>签约方</th></tr>
+      <tr>
+        <td><strong>①</strong></td>
+        <td>腊味ODM类比成品委托生产合同</td>
+        <td>顺好食(甲) ↔ 品顺(乙)</td>
+      </tr>
+      <tr>
+        <td><strong>②</strong></td>
+        <td>委托加工分包协议</td>
+        <td>品顺(发包) ↔ 西江(分包)</td>
+      </tr>
+      <tr>
+        <td><strong>③</strong></td>
+        <td>原料采购协议（甲供料依据）</td>
+        <td>见下方两个选项</td>
+      </tr>
+    </table>
+
+    <div class="callout callout-gold">
+      <strong>📌 合同①核心约定：</strong>品顺负责交付品牌双皮奶成品，必须使用大水牛供应链提供的原料，或与恒天然基金同等养殖规范的可溯源高质量牛奶（甲供料条款）。
+    </div>
+
+    <div class="callout callout-blue">
+      <strong>📌 奶源标准：</strong>使用的牛奶必须与本项目中福润牧场、恩平牧场等保持同一养殖标准，当核心牧场奶源供不应求时，允许采用符合同等养殖规范的可溯源高质量奶源。
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔀 合同③ 原料采购两个选项</h3>
+    <div class="opt-box" style="border-color:var(--gold);">
+      <div class="opt-title" style="color:var(--gold);">选项 A：顺好食直接采购</div>
+      <div class="flow">
+        <span class="hl">顺好食</span><span class="arr">⟷</span><span class="hl-purple">大水牛供应链</span>
+      </div>
+      <p style="font-size:0.76rem; color:#666;">顺好食直接与大水牛签署《原料采购协议》，并下达调拨指令。</p>
+    </div>
+    <div class="opt-box" style="border-color:var(--blue);">
+      <div class="opt-title" style="color:var(--blue);">选项 B：品顺代为采购（做大品顺营业额）</div>
+      <div class="flow">
+        <span class="hl-blue">品顺</span><span class="arr">⟷</span><span class="hl-purple">大水牛供应链</span>
+      </div>
+      <p style="font-size:0.76rem; color:#666;">品顺直接向大水牛下单采购原料，采购款经由品顺支付给大水牛，进一步做大品顺的营业额与资金流水。</p>
+    </div>
+    <div class="callout callout-green">
+      <strong>📌 无论选A或选B：</strong>实物流不变——福润/恩平/遂溪牧场 → 冷链运输 → 西江乳业工厂。
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🚚 物流层</h3>
+    <p style="font-size:0.82rem; margin-bottom:6px;"><strong>原料流：</strong></p>
+    <div class="flow">
+      福润/恩平/遂溪牧场 <span class="arr">→</span> 大水牛(调拨) <span class="arr">→</span> 西江乳业(入库)
+    </div>
+    <p style="font-size:0.82rem; margin-bottom:6px; margin-top:8px;"><strong>成品流：</strong></p>
+    <div class="flow">
+      西江乳业(生产) <span class="arr">→</span> 顺好食仓库(验收&amp;销售)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💰 资金层</h3>
+    <p style="font-size:0.82rem; margin-bottom:6px;"><strong>主资金线：</strong></p>
+    <div class="flow">
+      顺好食 <span class="arr">→💰大额货款→</span> 品顺 <span class="arr">→合理加工费→</span> 西江乳业
+    </div>
+    <p style="font-size:0.72rem; color:var(--dim); padding-left:4px;">品顺确认全额营收，截留IP差价及技术研发费</p>
+
+    <hr class="divider">
+
+    <p style="font-size:0.82rem; margin-bottom:4px;"><strong>原料采购款支付方式：</strong></p>
+    <div class="opt-box" style="border-color:var(--gold); padding:8px 10px;">
+      <div style="font-size:0.75rem; color:var(--gold); font-weight:600;">选项A：顺好食直接支付</div>
+      <div class="flow" style="padding:6px 10px; margin:4px 0;">
+        顺好食 <span class="arr">→原料款→</span> 大水牛
+      </div>
+    </div>
+    <div class="opt-box" style="border-color:var(--blue); padding:8px 10px;">
+      <div style="font-size:0.75rem; color:var(--blue); font-weight:600;">选项B：经品顺中转（做大营业额）</div>
+      <div class="flow" style="padding:6px 10px; margin:4px 0;">
+        顺好食 <span class="arr">→原料款→</span> 品顺 <span class="arr">→转付→</span> 大水牛
+      </div>
+    </div>
+
+    <div class="callout callout-gold" style="margin-top:10px;">
+      <strong>✅ 核心优势：</strong>IP授权费和技术研发费不单独列支，隐形包含在成品采购单价中。品顺开具全额增值税专票，国资营收流水有保障，同时规避了IP定价的敏感性。
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📝 备注</h3>
+    <div class="callout callout-blue">
+      <strong>🏛️ 品顺C端销售权保留：</strong>在本方案框架下，品顺（国资/IP方）保留向C端消费者直接销售的权利。该权利应在总包合同中明确约定，保障品顺作为品牌持有方的市场权益。
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 方案二 ==================== -->
+<div class="section" id="s2">
+
+  <div class="card">
+    <h3><span class="badge badge-blue">02</span> 品牌授权 + 直采模式</h3>
+    <p><strong>一句话概括：</strong>顺好食处于绝对中心，分别向品顺购买品牌授权及技术研发服务、向大水牛购买原料、向西江购买加工服务。<span class="hl-blue">三条交易线独立运行</span>，资金流向完全透明。</p>
+  </div>
+
+  <div class="card">
+    <h3>🏗️ 星型架构 · 顺好食为中心</h3>
+    <div class="role-map">
+      <div class="role-box rb-gold">
+        <div class="label">核心组局者 · 星型中心</div>
+        <div class="name">🎯 顺好食</div>
+      </div>
+      <div class="role-box rb-blue">
+        <div class="label">IP持有方</div>
+        <div class="name">🏛️ 品顺</div>
+      </div>
+      <div class="role-box rb-green">
+        <div class="label">OEM工厂</div>
+        <div class="name">🏭 西江乳业</div>
+      </div>
+      <div class="role-box rb-purple">
+        <div class="label">原料方</div>
+        <div class="name">🐃 大水牛供应链</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 合同层（三线并行）</h3>
+    <table class="tbl">
+      <tr><th>交易线</th><th>合同名称</th><th>签约方</th></tr>
+      <tr>
+        <td><strong>IP线</strong></td>
+        <td>品牌与技术许可协议</td>
+        <td>顺好食 ↔ 品顺</td>
+      </tr>
+      <tr>
+        <td><strong>加工线</strong></td>
+        <td>OEM代工合同</td>
+        <td>顺好食 ↔ 西江乳业</td>
+      </tr>
+      <tr>
+        <td><strong>原料线</strong></td>
+        <td>生乳采购合同</td>
+        <td>顺好食 ↔ 大水牛</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>🚚 物流层</h3>
+    <div class="flow">
+      大水牛 <span class="arr">→🥛水牛奶→</span> 西江(+品顺配方) <span class="arr">→📦成品→</span> 顺好食(全渠道销售)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💰 资金层（三线独立支付）</h3>
+    <div class="flow">顺好食 <span class="arr">→ 品牌授权及技术研发费 →</span> 品顺</div>
+    <div class="flow">顺好食 <span class="arr">→ 加工费 →</span> 西江乳业</div>
+    <div class="flow">顺好食 <span class="arr">→ 原料费 →</span> 大水牛</div>
+  </div>
+
+  <div class="card">
+    <h3>📝 备注</h3>
+    <div class="callout callout-blue">
+      <strong>🏛️ 品顺C端销售权保留：</strong>品顺（国资/IP方）保留向C端消费者直接销售的权利，应在品牌与技术许可协议中予以明确约定。
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 腊味ODM类比 ==================== -->
+<div class="section" id="odm">
+
+  <div class="card">
+    <h3>📜 腊味ODM合同 · 原始模式介绍</h3>
+    <p style="margin-bottom:8px;">这份合同的全称是<strong>《佛山市顺德区顺为食品有限公司 腊味ODM加工合同》</strong>，是顺为食品（顺好食的关联公司）现有的、已在实际运行中的委托加工合同。</p>
+    <div class="callout callout-purple">
+      <strong>💡 为什么要介绍这份合同？</strong><br>
+      我们的水牛奶交易架构方案一（总包甲供料模式），正是参照了这份腊味ODM合同的模式来设计的。它是一份已落地执行的先例合同，可以证明这种"总包+甲供料"的交易模式在实践中是可行且被认可的。
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🥩 腊味合同原始结构</h3>
+    <table class="tbl">
+      <tr><th>角色</th><th>原合同主体</th><th>具体职责</th></tr>
+      <tr>
+        <td><strong>甲方</strong><br><small>买方/发起方</small></td>
+        <td>佛山市顺德区<br><strong>顺为食品有限公司</strong></td>
+        <td>采购原材料（湿肉）<br>送至乙丙方工厂加工<br>验收成品、对外销售</td>
+      </tr>
+      <tr>
+        <td><strong>乙方</strong><br><small>加工方①</small></td>
+        <td>佛山市顺德区<br><strong>顺建一德食品有限公司</strong></td>
+        <td rowspan="2">共同承接加工业务<br>（一致行动方）<br>按甲方要求加工腊肠、腊肉等成品<br>按固定代工单价结算</td>
+      </tr>
+      <tr>
+        <td><strong>丙方</strong><br><small>加工方②</small></td>
+        <td>中山市黄圃镇<br><strong>金津肉类制品厂</strong></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>🔄 原合同核心模式</h3>
+    <p style="font-size:0.82rem; margin-bottom:8px;"><strong>甲供料 + ODM委托加工模式：</strong></p>
+    <ul>
+      <li><strong>甲方（顺为）自行采购原材料</strong>（湿肉），送至乙丙方工厂</li>
+      <li>乙丙方按甲方要求，以<strong>ODM模式</strong>加工生产腊肠、腊肉等成品</li>
+      <li>加工费按<strong>固定代工单价</strong>结算（腊肠13元/斤、腊肉8元/斤）+ 打包费</li>
+      <li>成品归甲方所有，由甲方负责销售</li>
+      <li>验收合格前，产品风险归乙方；验收后归甲方</li>
+    </ul>
+
+    <div class="flow" style="margin-top:10px;">
+      甲方(顺为)采购湿肉 <span class="arr">→</span> 送至乙丙方工厂 <span class="arr">→</span> 乙丙方加工成品 <span class="arr">→</span> 成品交付甲方
+    </div>
+
+    <div class="callout callout-purple" style="margin-top:10px;">
+      <strong>关键特征：</strong><br>
+      ① 甲方控制原材料采购（甲供料）<br>
+      ② 乙丙方只收取加工费（固定单价）<br>
+      ③ 三方合同、权责清晰<br>
+      ④ 有廉政条款（因涉及国资背景：顺控科工贸公司）
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔗 角色对应关系（关键！）</h3>
+    <p style="font-size:0.8rem; color:var(--dim); margin-bottom:10px;">腊味ODM合同 → 水牛奶项目方案一的角色映射：</p>
+
+    <div class="role-map">
+      <div class="role-box rb-gold">
+        <div class="label">甲方 · 买方/发起方</div>
+        <div class="name">🎯 顺好食</div>
+        <div class="orig">← 类比原合同：顺为食品</div>
+      </div>
+      <div class="role-box rb-blue">
+        <div class="label">乙方 · 名义总包 / IP方</div>
+        <div class="name">🏛️ 品顺（国资）</div>
+        <div class="orig">← 类比原合同：建一德（主加工方）</div>
+      </div>
+      <div class="role-box rb-green">
+        <div class="label">丙方 · 分包方/实际加工</div>
+        <div class="name">🏭 西江乳业</div>
+        <div class="orig">← 类比原合同：金津（联合加工方）</div>
+      </div>
+      <div class="role-box rb-purple">
+        <div class="label">原料供应方（新增角色）</div>
+        <div class="name">🐃 大水牛供应链</div>
+        <div class="orig">← 原合同无独立对应<br>（原合同由甲方自行采购原料）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚡ 关键区别与改进</h3>
+    <table class="tbl">
+      <tr><th>维度</th><th>腊味ODM原合同</th><th>水牛奶方案一</th></tr>
+      <tr>
+        <td><strong>原料采购</strong></td>
+        <td>甲方（顺为）自行采购湿肉</td>
+        <td>甲供料由大水牛供应链提供<br>（选项A：顺好食签约；选项B：品顺代签）</td>
+      </tr>
+      <tr>
+        <td><strong>总包角色</strong></td>
+        <td>乙方（建一德）直接加工</td>
+        <td>品顺为名义总包，分包给西江实际加工</td>
+      </tr>
+      <tr>
+        <td><strong>IP/品牌费</strong></td>
+        <td>不涉及</td>
+        <td>隐形包含在成品单价中<br>品顺截留差价</td>
+      </tr>
+      <tr>
+        <td><strong>国资营收</strong></td>
+        <td>不涉及</td>
+        <td>品顺确认全额营收（核心设计）</td>
+      </tr>
+      <tr>
+        <td><strong>合同层数</strong></td>
+        <td>一份三方合同</td>
+        <td>3份独立合同（更清晰灵活）</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>💬 向品顺解释的话术建议</h3>
+    <div class="callout callout-gold">
+      <p>"我们方案一的交易架构，参照了顺为食品目前已在执行的腊味ODM委托加工合同的模式。在那份合同中，顺为作为甲方采购原材料，委托建一德和金津两家工厂进行加工——这就是典型的<strong>'甲供料+委托加工'</strong>模式。"</p>
+      <br>
+      <p>"在水牛奶项目中，我们把这个模式做了升级：<strong>顺好食</strong>是甲方、<strong>品顺</strong>是乙方（名义总包），<strong>西江乳业</strong>是实际加工方。不同的是，原料（水牛奶）由<strong>大水牛供应链</strong>专门供应，而且IP授权费和技术研发费隐含在成品价格中，让品顺能确认全额营收。"</p>
+      <br>
+      <p>"这个模式的好处是：<strong>有先例可循</strong>，落地阻力小；同时保障了品顺的营收表现和品牌权益。"</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 方案对比 ==================== -->
+<div class="section" id="compare">
+
+  <div class="card">
+    <h3>📊 两方案核心对比</h3>
+    <table class="tbl">
+      <tr><th style="width:26%;">维度</th><th style="width:37%;">方案一<br><small>总包甲供料</small></th><th style="width:37%;">方案二<br><small>品牌授权直采</small></th></tr>
+      <tr>
+        <td><strong>核心逻辑</strong></td>
+        <td>总包整合，甲供料锁定供应链，IP费隐形化</td>
+        <td>三权分立，各自为政，透明显性交易</td>
+      </tr>
+      <tr>
+        <td><strong>合同数量</strong></td>
+        <td>3份<br><small>ODM类比合同+分包协议+原料采购协议</small></td>
+        <td>3份<br><small>许可协议+OEM+采购</small></td>
+      </tr>
+      <tr>
+        <td><strong>资金流向</strong></td>
+        <td>链式传递+甲供料支线<br><small>顺好食→品顺→西江</small></td>
+        <td>星型发散<br><small>顺好食→品顺/西江/大水牛</small></td>
+      </tr>
+      <tr>
+        <td><strong>IP费及技术研发费处理</strong></td>
+        <td>隐形包含在采购单价中</td>
+        <td>显性单独支付授权及技术研发费</td>
+      </tr>
+      <tr>
+        <td><strong>国资营收表现</strong></td>
+        <td>品顺确认全额营收</td>
+        <td>品顺仅确认授权及技术研发费收入</td>
+      </tr>
+      <tr>
+        <td><strong>顺好食控货权</strong></td>
+        <td>通过甲供料条款控制原料<br>✅ 实质控制</td>
+        <td>直接签约所有环节<br>✅ 完全控制</td>
+      </tr>
+      <tr>
+        <td><strong>落地难度</strong></td>
+        <td>较低：有腊味ODM合同先例<br>★★☆☆☆</td>
+        <td>较低：传统模式，操作简单<br>★★☆☆☆</td>
+      </tr>
+      <tr>
+        <td><strong>品顺C端销售权</strong></td>
+        <td>保留，合同约定</td>
+        <td>保留，协议约定</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== 演讲提示 ==================== -->
+<div class="section" id="tips">
+
+  <div class="card">
+    <h3>🎯 开场建议</h3>
+    <div class="callout callout-gold">
+      <p>"感谢品顺这边的时间。今天主要跟各位分享我们为水牛奶产业合作设计的两套交易架构方案，两个方案各有特色，我们可以一起讨论哪个更适合双方的合作。"</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📌 关键要强调的点</h3>
+    <ul>
+      <li><strong>品顺利益保障：</strong>方案一中品顺确认全额营收，C端销售权保留</li>
+      <li><strong>方案一新增选项B：</strong>原料采购可经品顺中转，进一步做大品顺营业额</li>
+      <li><strong>有先例可循：</strong>方案一参照已执行的腊味ODM合同模式，落地阻力小</li>
+      <li><strong>奶源品质可控：</strong>福润/恩平/遂溪牧场，恒天然基金同等养殖标准</li>
+      <li><strong>品牌权益：</strong>"寻味顺德/华桂园"品牌使用权，品顺始终保留所有权</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>⚠️ 容易被问到的问题</h3>
+    <table class="tbl">
+      <tr><th style="width:40%;">对方可能问</th><th>建议回答方向</th></tr>
+      <tr>
+        <td>方案一中，品顺的利润从哪来？</td>
+        <td>品顺收取大额货款后，支付给西江加工费，差价即为品顺的IP溢价和技术研发费收入</td>
+      </tr>
+      <tr>
+        <td>为什么不直接签品牌授权协议？</td>
+        <td>方案二也可以。方案一的好处是品顺营收更好看，且IP费不单独暴露</td>
+      </tr>
+      <tr>
+        <td>大水牛供应链是什么关系？</td>
+        <td>甲方（顺好食方面）管理基金旗下的子公司，负责原料奶供应</td>
+      </tr>
+      <tr>
+        <td>腊味合同跟水牛奶有什么关系？</td>
+        <td>同一套"甲供料+总包委托加工"模式，只是产品不同。腊味合同是已落地先例，证明模式可行</td>
+      </tr>
+      <tr>
+        <td>选项A和选项B哪个更好？</td>
+        <td>选项B对品顺营业额表现更好，因为原料采购款也经过品顺；选项A更简单直接。看品顺的偏好</td>
+      </tr>
+      <tr>
+        <td>品顺的C端销售权怎么保障？</td>
+        <td>无论方案一或二，都在合同中明确约定品顺保留C端直销权</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>🏁 收尾建议</h3>
+    <div class="callout callout-green">
+      <p>"以上是我们准备的两套方案框架，每套都充分考虑了品顺的营收表现、品牌权益和落地可行性。接下来我们可以就具体细节展开讨论，看哪个方向更符合各位的想法，我们再一起把细节敲定下来。"</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`.nav-btn[data-s="${id}"]`).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
